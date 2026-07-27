@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  /* Verde pino: salud, comida natural, confianza */
+  --color-pine-50: #eef5f0;
+  --color-pine-100: #d3e6da;
+  --color-pine-200: #a7cdb6;
+  --color-pine-300: #78b092;
+  --color-pine-400: #4b9271;
+  --color-pine-500: #2f7657;
+  --color-pine-600: #205c43;
+  --color-pine-700: #184632;
+  --color-pine-800: #123324;
+  --color-pine-900: #0f3d2e;
+
+  /* Miel: acento cálido */
+  --color-honey-50: #fdf6e8;
+  --color-honey-100: #faeac2;
+  --color-honey-200: #f4d68a;
+  --color-honey-300: #ecc058;
+  --color-honey-400: #e0a92f;
+  --color-honey-500: #c98d1c;
+  --color-honey-600: #a56f16;
+
+  /* Estados de riesgo */
+  --color-risk-green: #2f7657;
+  --color-risk-yellow: #c98d1c;
+  --color-risk-red: #b3402f;
+
+  --color-paper: #fbfaf7;
+  --color-ink: #1c2620;
+
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Inter", "system-ui", sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #10140f;
+    color: #eef2ee;
+  }
+}

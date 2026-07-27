@@ -1,0 +1,22 @@
+{
+  "ingredientes_casera": [
+    { "id": "huevo", "nombre": "Huevo", "rol": "proteína", "porUnidad": true, "gramosUnidad": 55, "precio": 0.20 },
+    { "id": "pollo_economico", "nombre": "Presa económica de pollo", "rol": "proteína", "precioKg": 3.5 },
+    { "id": "pollo_pechuga", "nombre": "Pechuga de pollo", "rol": "proteína", "precioKg": 6.0 },
+    { "id": "higado", "nombre": "Hígado de pollo", "rol": "víscera · vitaminas", "precioKg": 2.0 },
+    { "id": "sardina", "nombre": "Sardina en agua", "rol": "proteína · omega-3", "precioKg": 14.0 },
+    { "id": "arroz", "nombre": "Arroz cocido", "rol": "energía", "precioKg": 1.2 },
+    { "id": "papa", "nombre": "Papa cocida", "rol": "energía", "precioKg": 0.6 },
+    { "id": "camote", "nombre": "Camote cocido", "rol": "energía", "precioKg": 1.2 },
+    { "id": "zanahoria", "nombre": "Zanahoria", "rol": "fibra", "precioKg": 0.8 },
+    { "id": "zambo", "nombre": "Zambo / calabaza", "rol": "fibra", "precioKg": 0.6 },
+    { "id": "aceite", "nombre": "Aceite (girasol o pescado)", "rol": "grasa esencial", "precioKg": 2.5 }
+  ],
+  "suplemento_por_dia": 0.20,
+  "niveles_comercial": {
+    "ultra": { "precioKg": 0.75, "marcas": ["Buen Can", "Pro Can", "Balan Can", "Alcon"] },
+    "media": { "precioKg": 3.5, "marcas": ["Dog Chow", "Pedigree", "Cani", "NutraPro", "Chunky"] },
+    "premium": { "precioKg": 7.0, "marcas": ["Pro Plan", "Royal Canin", "Pro Pac", "Taste of the Wild"] },
+    "prescripcion": { "precioKg": 14.0, "marcas": ["Royal Canin Veterinary", "Hill's Prescription"] }
+  }
+}
