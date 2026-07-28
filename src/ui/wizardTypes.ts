@@ -1,37 +1,44 @@
 import type {
   Especie,
-  EtapaVida,
   NivelActividad,
   CondicionCorporal,
   BanderaSalud,
+  Ruta,
 } from '../engine/tipos';
+import type { UnidadEdad, Tamano } from './edad';
+import type { NivelPresupuesto } from '../storage/db';
 
 export interface EstadoAsistente {
   nombre: string;
   especie: Especie;
-  pesoActual: string;
-  etapaVida: EtapaVida;
+  edadValor: number;
+  edadUnidad: UnidadEdad;
+  tamano: Tamano;
+  pesoActual: number;
   castrado: boolean;
   actividad: NivelActividad;
   condicionCorporal: CondicionCorporal;
   pesoObjetivo: string;
   banderasSalud: BanderaSalud[];
-  presupuestoMensual: string;
   ingredientesPropios: string[];
   disposicionACocinar: boolean;
+  presupuestoNivel: NivelPresupuesto;
+  planElegido?: Ruta;
 }
 
 export const estadoInicial: EstadoAsistente = {
   nombre: '',
   especie: 'perro',
-  pesoActual: '',
-  etapaVida: 'adulto',
+  edadValor: 2,
+  edadUnidad: 'anios',
+  tamano: 'mediano',
+  pesoActual: 10,
   castrado: true,
   actividad: 'normal',
   condicionCorporal: 'normal',
   pesoObjetivo: '',
   banderasSalud: [],
-  presupuestoMensual: '',
   ingredientesPropios: [],
   disposicionACocinar: true,
+  presupuestoNivel: 'equilibrado',
 };
