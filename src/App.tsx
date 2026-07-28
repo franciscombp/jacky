@@ -4,7 +4,7 @@ import { decidirEstrategia, type ResultadoDecision } from './engine/decision';
 import { calcularEnergiaDiaria } from './engine/energia';
 import { calcularCostosComercialTodosNiveles } from './engine/costos';
 import { calcularEtapaVida, edadEnMeses } from './ui/edad';
-import type { Ruta } from './engine/tipos';
+import type { BanderaSalud, Ruta } from './engine/tipos';
 import type { NivelPresupuesto } from './storage/db';
 import { Inicio } from './ui/screens/Inicio';
 import { Wizard } from './ui/screens/Wizard';
@@ -34,6 +34,14 @@ function calcularResultado(estado: EstadoAsistente): ResultadoDecision {
   const costos = calcularCostosComercialTodosNiveles(energia.energiaDiaria);
   const presupuestoMensual = calcularPresupuestoMensual(costos, estado.presupuestoNivel);
 
+  // Banderas implícitas por especie/etapa de vida (sección 8): el usuario no las marca,
+  // se derivan del perfil para que gato/cachorro/senior activen el nivel amarillo.
+  const banderasImplicitas: BanderaSalud[] = [];
+  if (estado.especie === 'gato') banderasImplicitas.push('gato');
+  if (etapaVida === 'cachorro_0_4') banderasImplicitas.push('cachorro_0_4');
+  if (etapaVida === 'cachorro_4_12') banderasImplicitas.push('cachorro_4_12');
+  if (etapaVida === 'senior') banderasImplicitas.push('senior');
+
   return decidirEstrategia({
     especie: estado.especie,
     pesoActual: estado.pesoActual,
@@ -42,7 +50,7 @@ function calcularResultado(estado: EstadoAsistente): ResultadoDecision {
     actividad: estado.actividad,
     condicionCorporal: estado.condicionCorporal,
     pesoObjetivo: estado.pesoObjetivo ? Number(estado.pesoObjetivo) : undefined,
-    banderasSalud: estado.banderasSalud,
+    banderasSalud: [...estado.banderasSalud, ...banderasImplicitas],
     presupuestoMensual,
     ingredientesPropios: estado.ingredientesPropios,
     disposicionACocinar: estado.disposicionACocinar,
@@ -160,12 +168,16 @@ function App() {
     actualizar({ pesoActual: nuevoPesoKg });
   }
 
+  const esWizard = pantalla === 'wizard';
+
   return (
-    <div className="min-h-full max-w-md mx-auto px-4 py-8">
-      <header className="mb-6 text-center">
-        <h1 className="text-3xl text-pine-900">Jacky</h1>
-        <p className="text-sm text-ink/60">Nutrición y salud casera accesible para tu mascota</p>
-      </header>
+    <div className="min-h-dvh max-w-md mx-auto px-4 flex flex-col" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))', paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+      {!esWizard && (
+        <header className="mb-6 text-center shrink-0">
+          <h1 className="text-3xl text-pine-900">Jacky</h1>
+          <p className="text-sm text-ink/60">Nutrición y salud casera accesible para tu mascota</p>
+        </header>
+      )}
 
       {pantalla === 'inicio' && <Inicio onAgregar={irAAgregar} onAbrir={irAAbrir} />}
 

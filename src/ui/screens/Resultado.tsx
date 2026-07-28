@@ -5,6 +5,7 @@ import { construirReceta } from '../../engine/receta';
 import { Tarjeta } from '../components/Tarjeta';
 import { Boton } from '../components/Boton';
 import { Plato } from '../components/Plato';
+import { Acordeon } from '../components/Acordeon';
 import datosEc from '../../engine/datos.ec.json';
 
 const NOMBRES_RUTA: Record<string, string> = {
@@ -21,9 +22,9 @@ const COLOR_RIESGO: Record<string, string> = {
 };
 
 const NIVELES_PRESUPUESTO: { valor: NivelPresupuesto; etiqueta: string }[] = [
-  { valor: 'ahorro', etiqueta: 'Gastar menos' },
+  { valor: 'ahorro', etiqueta: 'Menos' },
   { valor: 'equilibrado', etiqueta: 'Equilibrado' },
-  { valor: 'amplio', etiqueta: 'Gastar más' },
+  { valor: 'amplio', etiqueta: 'Más' },
 ];
 
 interface Props {
@@ -55,7 +56,7 @@ export function Resultado({
 
   if (rutaRecomendada === 'D') {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 pb-4">
         <Tarjeta className={`border ${COLOR_RIESGO.rojo}`}>
           <p className="text-xs uppercase tracking-wide font-medium">Nivel rojo · alto</p>
           <h2 className="text-2xl mt-1">{nombreMascota || 'Tu mascota'} necesita a tu veterinario primero</h2>
@@ -71,11 +72,9 @@ export function Resultado({
             <li>Peso: {energia.pesoUsado} kg</li>
           </ul>
         </Tarjeta>
-        <div className="flex gap-3 pb-6">
-          <Boton variante="secundario" onClick={onEditar}>
-            Editar datos
-          </Boton>
-        </div>
+        <Boton variante="secundario" onClick={onEditar} className="w-full">
+          Editar datos
+        </Boton>
       </div>
     );
   }
@@ -83,26 +82,41 @@ export function Resultado({
   const rutaMostrada: Ruta = planElegido ?? rutaRecomendada;
   const altMostrada: AlternativaRuta | undefined = alternativas.find((a) => a.ruta === rutaMostrada);
   const receta = rutaMostrada === 'C' ? construirReceta(gramosPorDiaCasera, ingredientesPropios) : undefined;
+  const notasNoTriviales = notasSeguridad.filter(
+    (n) => !n.includes('calcio y el suplemento vitamínico-mineral son siempre clave')
+  );
 
   return (
-    <div className="space-y-4">
-      <Tarjeta className={`border ${COLOR_RIESGO[nivelRiesgo]}`}>
-        <p className="text-xs uppercase tracking-wide font-medium">
-          Nivel {nivelRiesgo === 'verde' ? 'verde · adelante' : 'amarillo · con cuidado'}
-        </p>
-        <h2 className="text-2xl mt-1">
-          El plan de {nombreMascota || 'tu mascota'}: {NOMBRES_RUTA[rutaMostrada]}
-        </h2>
-        {planElegido && planElegido !== rutaRecomendada && (
-          <p className="text-xs text-ink/60 mt-1">
-            Elegiste esta opción tú. Recomendamos {NOMBRES_RUTA[rutaRecomendada]}.
+    <div className="space-y-4 pb-4">
+      {/* Hero: lo esencial de un vistazo */}
+      <Tarjeta className={`border ${COLOR_RIESGO[nivelRiesgo]} animate-destello`} key={rutaMostrada}>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs uppercase tracking-wide font-medium">
+            {nivelRiesgo === 'verde' ? 'Nivel verde · adelante' : 'Nivel amarillo · con cuidado'}
           </p>
+          {altMostrada && <p className="text-lg font-display text-pine-800">${altMostrada.costoMensual.toFixed(0)}/mes</p>}
+        </div>
+        <h2 className="text-xl leading-snug mb-2">
+          {nombreMascota || 'Tu mascota'}: {NOMBRES_RUTA[rutaMostrada]}
+        </h2>
+        <p className="text-3xl font-display text-pine-800">
+          {Math.round(energia.energiaDiaria)} <span className="text-base text-ink/50">kcal/día · 2 comidas</span>
+        </p>
+        {planElegido && planElegido !== rutaRecomendada && (
+          <p className="text-xs text-ink/60 mt-2">Elegiste esta opción tú. Recomendamos {NOMBRES_RUTA[rutaRecomendada]}.</p>
         )}
       </Tarjeta>
 
+      {nivelRiesgo === 'amarillo' && notasNoTriviales.length > 0 && (
+        <div className="rounded-xl bg-risk-yellow/10 border border-risk-yellow/30 px-4 py-3 text-sm text-risk-yellow">
+          {notasNoTriviales[0]}
+        </div>
+      )}
+
+      {/* Elegir plan y presupuesto, unificado */}
       <Tarjeta>
         <h3 className="text-sm font-medium mb-2">¿Cuánto quieres gastar?</h3>
-        <div className="flex gap-2">
+        <div className="flex gap-2 mb-4">
           {NIVELES_PRESUPUESTO.map((n) => (
             <button
               key={n.valor}
@@ -115,93 +129,83 @@ export function Resultado({
             </button>
           ))}
         </div>
-      </Tarjeta>
 
-      <Tarjeta>
-        <h3 className="text-lg mb-2">Cuánto darle</h3>
-        <p className="text-3xl font-display text-pine-800">{Math.round(energia.energiaDiaria)} kcal/día</p>
-        <p className="text-sm text-ink/60 mt-1">
-          Repartido en 2 comidas. Reajusta la porción cada 1–2 semanas según cómo evolucione el peso.
-        </p>
-      </Tarjeta>
-
-      {receta && (
-        <Tarjeta>
-          <h3 className="text-lg mb-3">La receta de hoy</h3>
-          <Plato componentes={receta.componentes} />
-          <div className="mt-4 space-y-2">
-            <div className="rounded-lg bg-honey-50 border border-honey-200 px-3 py-2 text-sm">
-              <span className="font-semibold">Clave — Calcio:</span> {receta.calcio.fuente} ({receta.calcio.dosis})
-            </div>
-            <div className="rounded-lg bg-honey-50 border border-honey-200 px-3 py-2 text-sm">
-              <span className="font-semibold">Clave — Suplemento:</span> {receta.suplemento.dosis}
-            </div>
-          </div>
-        </Tarjeta>
-      )}
-
-      {(rutaMostrada === 'A' || rutaMostrada === 'B') && altMostrada?.nivelComercial && (
-        <Tarjeta>
-          <h3 className="text-lg mb-2">Qué comprar</h3>
-          <p className="text-sm mb-2">
-            Nivel sugerido: <span className="font-medium capitalize">{altMostrada.nivelComercial}</span> (
-            {datosEc.niveles_comercial[altMostrada.nivelComercial].marcas.join(', ')})
-          </p>
-          <p className="text-sm font-medium mb-1">Antes de comprar, revisa la etiqueta:</p>
-          <ul className="text-sm list-disc pl-5 space-y-0.5 text-ink/80">
-            <li>¿Dice "completo y balanceado" (AAFCO o equivalente)?</li>
-            <li>¿Para qué etapa de vida es?</li>
-            <li>¿Se determinó por formulación o por prueba de alimentación?</li>
-          </ul>
-        </Tarjeta>
-      )}
-
-      <Tarjeta>
-        <h3 className="text-lg mb-1">Comparación de costo mensual</h3>
-        <p className="text-xs text-ink/50 mb-3">Toca una opción para elegirla como tu plan.</p>
+        <p className="text-xs text-ink/50 mb-2">Toca una opción para elegirla como tu plan.</p>
         <ul className="space-y-2">
           {alternativas.map((alt) => (
             <li key={alt.ruta}>
               <button
                 onClick={() => onElegirPlan(alt.ruta)}
-                className={`w-full flex items-center justify-between rounded-lg px-3 py-2 text-left border ${
+                className={`w-full flex items-center justify-between rounded-lg px-3 py-2.5 text-left border ${
                   alt.ruta === rutaMostrada ? 'bg-pine-50 border-pine-300' : 'border-transparent hover:bg-pine-50/50'
                 }`}
               >
                 <span className="text-sm">
                   {alt.descripcion}
                   {alt.ruta === rutaRecomendada && (
-                    <span className="ml-2 text-xs text-pine-600 font-medium">Recomendado</span>
+                    <span className="block text-xs text-pine-600 font-medium mt-0.5">Recomendado</span>
                   )}
                 </span>
-                <span className="font-medium">${alt.costoMensual.toFixed(2)}</span>
+                <span className="font-medium shrink-0 ml-2">${alt.costoMensual.toFixed(2)}</span>
               </button>
             </li>
           ))}
         </ul>
       </Tarjeta>
 
-      {notasSeguridad.length > 0 && (
-        <Tarjeta className="bg-pine-50/50">
-          <h3 className="text-sm font-medium mb-2">Notas de seguridad</h3>
-          <ul className="text-sm list-disc pl-5 space-y-1 text-ink/80">
-            {notasSeguridad.map((n, i) => (
-              <li key={i}>{n}</li>
-            ))}
-          </ul>
+      {receta && (
+        <Tarjeta>
+          <Acordeon titulo="Ver la receta de hoy" abiertoPorDefecto>
+            <Plato componentes={receta.componentes} />
+            <div className="mt-4 space-y-2">
+              <div className="rounded-lg bg-honey-50 border border-honey-200 px-3 py-2 text-sm">
+                <span className="font-semibold">Clave — Calcio:</span> {receta.calcio.fuente} ({receta.calcio.dosis})
+              </div>
+              <div className="rounded-lg bg-honey-50 border border-honey-200 px-3 py-2 text-sm">
+                <span className="font-semibold">Clave — Suplemento:</span> {receta.suplemento.dosis}
+              </div>
+            </div>
+          </Acordeon>
         </Tarjeta>
       )}
 
-      <p className="text-xs text-ink/50 px-1">
-        Jacky es una herramienta educativa y de orientación, no un servicio veterinario. No diagnostica ni trata
-        enfermedades. La responsabilidad final de la salud de tu mascota es tuya y de tu veterinario.
+      {(rutaMostrada === 'A' || rutaMostrada === 'B') && altMostrada?.nivelComercial && (
+        <Tarjeta>
+          <Acordeon titulo="Qué comprar y cómo leer la etiqueta">
+            <p className="text-sm mb-2">
+              Nivel sugerido: <span className="font-medium capitalize">{altMostrada.nivelComercial}</span> (
+              {datosEc.niveles_comercial[altMostrada.nivelComercial].marcas.join(', ')})
+            </p>
+            <ul className="text-sm list-disc pl-5 space-y-0.5 text-ink/80">
+              <li>¿Dice "completo y balanceado" (AAFCO o equivalente)?</li>
+              <li>¿Para qué etapa de vida es?</li>
+              <li>¿Se determinó por formulación o por prueba de alimentación?</li>
+            </ul>
+          </Acordeon>
+        </Tarjeta>
+      )}
+
+      {notasNoTriviales.length > 0 && (
+        <Tarjeta>
+          <Acordeon titulo="Notas de seguridad">
+            <ul className="text-sm list-disc pl-5 space-y-1 text-ink/80">
+              {notasNoTriviales.map((n, i) => (
+                <li key={i}>{n}</li>
+              ))}
+            </ul>
+          </Acordeon>
+        </Tarjeta>
+      )}
+
+      <p className="text-xs text-ink/40 px-1">
+        Jacky es una herramienta educativa, no un servicio veterinario. No diagnostica ni trata enfermedades.
       </p>
 
-      <div className="flex gap-3 pb-6">
-        <Boton onClick={onGuardar} disabled={guardado}>
+      <div className="flex gap-3 sticky bottom-0 bg-paper/95 backdrop-blur-sm pt-2 pb-1 -mx-4 px-4">
+        <Boton onClick={onGuardar} disabled={guardado} className="flex-1">
           {guardado ? 'Guardado' : 'Guardar cambios'}
         </Boton>
-        <Boton variante="secundario" onClick={onEditar}>
+        <Boton variante="secundario" onClick={onEditar} className="flex-1">
           Editar datos
         </Boton>
       </div>

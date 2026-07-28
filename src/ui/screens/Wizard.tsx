@@ -4,7 +4,7 @@ import type { BanderaSalud } from '../../engine/tipos';
 import type { Tamano } from '../edad';
 import { formatearEdad } from '../edad';
 import { PantallaPregunta } from '../components/PantallaPregunta';
-import { SliderPeso } from '../components/SliderPeso';
+import { RuedaPeso } from '../components/RuedaPeso';
 import { SelectorContextura } from '../components/SelectorContextura';
 
 interface Props {
@@ -237,11 +237,12 @@ export function Wizard({ estado, actualizar, onTerminar, onCancelar, esEdicion =
           onAtras={atras}
           onSiguiente={siguiente}
         >
-          <SliderPeso
+          <RuedaPeso
             valor={estado.pesoActual}
             onChange={(v) => actualizar({ pesoActual: v })}
             min={1}
             max={pesoMax}
+            paso={estado.especie === 'perro' ? 0.5 : 0.1}
           />
         </PantallaPregunta>
       );
