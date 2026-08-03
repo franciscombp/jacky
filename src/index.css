@@ -44,16 +44,38 @@ body {
   color: var(--color-ink);
   font-family: var(--font-body);
   overscroll-behavior-y: none;
+  /* Deja que inputs, selects y el date picker nativos usen su tema oscuro. */
+  color-scheme: light dark;
 }
 
 h1, h2, h3, .font-display {
   font-family: var(--font-display);
 }
 
+/*
+ * Remapeo de tokens para modo oscuro. Los tonos "surface" (pine-50/100,
+ * honey-50/100/200) y los que se usan como texto directo sobre el fondo
+ * (pine-800/900) cambian; los tonos usados como relleno sólido de botones
+ * (pine-500/600/700) se mantienen, siguen funcionando igual de bien como
+ * superficie de color propia en ambos modos.
+ */
 @media (prefers-color-scheme: dark) {
-  body {
-    background-color: #10140f;
-    color: #eef2ee;
+  :root {
+    --color-paper: #12160f;
+    --color-ink: #e8ede8;
+
+    --color-pine-50: #1a2a20;
+    --color-pine-100: #2a3d31;
+    --color-pine-800: #8fd3ad;
+    --color-pine-900: #d3ecdd;
+
+    --color-honey-50: #2b2314;
+    --color-honey-100: #3d3119;
+    --color-honey-200: #5a4a22;
+
+    --color-risk-green: #6cc498;
+    --color-risk-yellow: #e6b34e;
+    --color-risk-red: #e77e6b;
   }
 }
 

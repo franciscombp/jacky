@@ -14,7 +14,7 @@ export function Plato({ componentes }: { componentes: ComponenteReceta[] }) {
   return (
     <div className="flex items-center gap-4">
       <svg viewBox="0 0 100 100" className="w-28 h-28 shrink-0" role="img" aria-label="Plato de la receta">
-        <circle cx="50" cy="50" r="48" fill="#fff" stroke="#e5e0d0" strokeWidth="2" />
+        <circle cx="50" cy="50" r="48" fill="var(--color-paper)" stroke="var(--color-pine-100)" strokeWidth="2" />
         {componentes.map((c) => {
           const fraccion = c.gramos / total;
           const inicio = acumulado;

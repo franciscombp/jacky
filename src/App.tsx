@@ -11,9 +11,12 @@ import { Wizard } from './ui/screens/Wizard';
 import { Resultado } from './ui/screens/Resultado';
 import { Seguimiento } from './ui/screens/Seguimiento';
 import { Recordatorios } from './ui/screens/Recordatorios';
+import { EncabezadoMascota } from './ui/components/EncabezadoMascota';
+import { BarraNavegacion } from './ui/components/BarraNavegacion';
 import { db, guardarPerfil, obtenerPerfil, guardarPlan } from './storage/db';
 
 type Pantalla = 'inicio' | 'wizard' | 'resultado' | 'seguimiento' | 'recordatorios';
+const PANTALLAS_CON_MASCOTA: Pantalla[] = ['resultado', 'seguimiento', 'recordatorios'];
 
 function calcularPresupuestoMensual(costos: { ultra: number; media: number; premium: number }, nivel: NivelPresupuesto) {
   if (nivel === 'ahorro') return costos.ultra * 1.05;
@@ -169,31 +172,37 @@ function App() {
     actualizar({ pesoActual: nuevoPesoKg });
   }
 
-  const esWizard = pantalla === 'wizard';
+  function irAInicio() {
+    setPantalla('inicio');
+  }
+
+  const muestraMascota = petId !== null && PANTALLAS_CON_MASCOTA.includes(pantalla);
 
   return (
-    <div className="min-h-dvh max-w-md mx-auto px-4 flex flex-col" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))', paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
-      {!esWizard && (
+    <div className="min-h-dvh max-w-md mx-auto px-4 flex flex-col" style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}>
+      {pantalla === 'inicio' && (
         <header className="mb-6 text-center shrink-0">
           <h1 className="text-3xl text-pine-900">Jacky</h1>
           <p className="text-sm text-ink/60">Nutrición y salud casera accesible para tu mascota</p>
         </header>
       )}
 
-      {pantalla === 'inicio' && <Inicio onAgregar={irAAgregar} onAbrir={irAAbrir} />}
+      {muestraMascota && <EncabezadoMascota nombre={estado.nombre} especie={estado.especie} onVolver={irAInicio} />}
 
-      {pantalla === 'wizard' && (
-        <Wizard
-          estado={estado}
-          actualizar={actualizar}
-          onTerminar={terminarWizard}
-          onCancelar={cancelarWizard}
-          esEdicion={esEdicion}
-        />
-      )}
+      <div className={muestraMascota ? 'flex-1 pb-24' : 'flex-1'} style={muestraMascota ? undefined : { paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}>
+        {pantalla === 'inicio' && <Inicio onAgregar={irAAgregar} onAbrir={irAAbrir} />}
 
-      {pantalla === 'resultado' && (
-        <>
+        {pantalla === 'wizard' && (
+          <Wizard
+            estado={estado}
+            actualizar={actualizar}
+            onTerminar={terminarWizard}
+            onCancelar={cancelarWizard}
+            esEdicion={esEdicion}
+          />
+        )}
+
+        {pantalla === 'resultado' && (
           <Resultado
             nombreMascota={estado.nombre}
             resultado={resultado}
@@ -206,35 +215,25 @@ function App() {
             onEditar={editar}
             guardado={guardado}
           />
-          <div className="text-center pb-6 space-y-2">
-            {guardado && petId !== null && (
-              <>
-                <button className="text-sm text-pine-700 hover:underline block w-full" onClick={() => setPantalla('seguimiento')}>
-                  Ir al seguimiento de peso →
-                </button>
-                <button className="text-sm text-pine-700 hover:underline block w-full" onClick={() => setPantalla('recordatorios')}>
-                  Salud y recordatorios →
-                </button>
-              </>
-            )}
-            <button className="text-sm text-ink/50 hover:underline block w-full" onClick={() => setPantalla('inicio')}>
-              ← Volver a mis mascotas
-            </button>
-          </div>
-        </>
-      )}
+        )}
 
-      {pantalla === 'seguimiento' && petId !== null && (
-        <Seguimiento
+        {pantalla === 'seguimiento' && petId !== null && (
+          <Seguimiento
+            petId={petId}
+            pesoObjetivo={estado.pesoObjetivo ? Number(estado.pesoObjetivo) : undefined}
+            onRecalcular={recalcularConNuevoPeso}
+          />
+        )}
+
+        {pantalla === 'recordatorios' && petId !== null && <Recordatorios petId={petId} />}
+      </div>
+
+      {muestraMascota && petId !== null && (
+        <BarraNavegacion
           petId={petId}
-          pesoObjetivo={estado.pesoObjetivo ? Number(estado.pesoObjetivo) : undefined}
-          onRecalcular={recalcularConNuevoPeso}
-          onVolver={() => setPantalla('resultado')}
+          activa={pantalla as 'resultado' | 'seguimiento' | 'recordatorios'}
+          onCambiar={setPantalla}
         />
-      )}
-
-      {pantalla === 'recordatorios' && petId !== null && (
-        <Recordatorios petId={petId} onVolver={() => setPantalla('resultado')} />
       )}
     </div>
   );

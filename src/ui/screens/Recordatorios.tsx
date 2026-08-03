@@ -34,10 +34,9 @@ function formatearFecha(fecha: string): string {
 
 interface Props {
   petId: number;
-  onVolver: () => void;
 }
 
-export function Recordatorios({ petId, onVolver }: Props) {
+export function Recordatorios({ petId }: Props) {
   const [recordatorios, setRecordatorios] = useState<Reminder[] | null>(null);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [tipo, setTipo] = useState<TipoRecordatorio>('vacuna');
@@ -184,10 +183,6 @@ export function Recordatorios({ petId, onVolver }: Props) {
       {grupo('Vencidos', vencidos, 'text-risk-red')}
       {grupo('Próximos 14 días', proximos, 'text-risk-yellow')}
       {grupo('Más adelante', futuros, 'text-ink/40')}
-
-      <Boton variante="texto" onClick={onVolver}>
-        ← Volver al plan
-      </Boton>
     </div>
   );
 }

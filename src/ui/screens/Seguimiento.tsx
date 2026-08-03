@@ -8,10 +8,9 @@ interface Props {
   petId: number;
   pesoObjetivo?: number;
   onRecalcular: (nuevoPesoKg: number) => void;
-  onVolver: () => void;
 }
 
-export function Seguimiento({ petId, pesoObjetivo, onRecalcular, onVolver }: Props) {
+export function Seguimiento({ petId, pesoObjetivo, onRecalcular }: Props) {
   const [registros, setRegistros] = useState<WeightLog[]>([]);
   const [nuevoPeso, setNuevoPeso] = useState('');
   const [aviso, setAviso] = useState<string | null>(null);
@@ -69,9 +68,9 @@ export function Seguimiento({ petId, pesoObjetivo, onRecalcular, onVolver }: Pro
                 <YAxis tick={{ fontSize: 11 }} domain={['auto', 'auto']} />
                 <Tooltip />
                 {pesoObjetivo && (
-                  <ReferenceLine y={pesoObjetivo} stroke="#c98d1c" strokeDasharray="4 4" label="Meta" />
+                  <ReferenceLine y={pesoObjetivo} stroke="var(--color-risk-yellow)" strokeDasharray="4 4" label="Meta" />
                 )}
-                <Line type="monotone" dataKey="peso" stroke="#205c43" strokeWidth={2} dot />
+                <Line type="monotone" dataKey="peso" stroke="var(--color-pine-600)" strokeWidth={2} dot />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -96,10 +95,6 @@ export function Seguimiento({ petId, pesoObjetivo, onRecalcular, onVolver }: Pro
           </div>
         )}
       </Tarjeta>
-
-      <Boton variante="texto" onClick={onVolver}>
-        Volver al plan
-      </Boton>
     </div>
   );
 }

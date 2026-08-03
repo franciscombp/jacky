@@ -201,7 +201,7 @@ export function Resultado({
         Jacky es una herramienta educativa, no un servicio veterinario. No diagnostica ni trata enfermedades.
       </p>
 
-      <div className="flex gap-3 sticky bottom-0 bg-paper/95 backdrop-blur-sm pt-2 pb-1 -mx-4 px-4">
+      <div className="flex gap-3">
         <Boton onClick={onGuardar} disabled={guardado} className="flex-1">
           {guardado ? 'Guardado' : 'Guardar cambios'}
         </Boton>
