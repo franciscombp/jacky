@@ -10,9 +10,10 @@ import { Inicio } from './ui/screens/Inicio';
 import { Wizard } from './ui/screens/Wizard';
 import { Resultado } from './ui/screens/Resultado';
 import { Seguimiento } from './ui/screens/Seguimiento';
+import { Recordatorios } from './ui/screens/Recordatorios';
 import { db, guardarPerfil, obtenerPerfil, guardarPlan } from './storage/db';
 
-type Pantalla = 'inicio' | 'wizard' | 'resultado' | 'seguimiento';
+type Pantalla = 'inicio' | 'wizard' | 'resultado' | 'seguimiento' | 'recordatorios';
 
 function calcularPresupuestoMensual(costos: { ultra: number; media: number; premium: number }, nivel: NivelPresupuesto) {
   if (nivel === 'ahorro') return costos.ultra * 1.05;
@@ -207,9 +208,14 @@ function App() {
           />
           <div className="text-center pb-6 space-y-2">
             {guardado && petId !== null && (
-              <button className="text-sm text-pine-700 hover:underline block w-full" onClick={() => setPantalla('seguimiento')}>
-                Ir al seguimiento de peso →
-              </button>
+              <>
+                <button className="text-sm text-pine-700 hover:underline block w-full" onClick={() => setPantalla('seguimiento')}>
+                  Ir al seguimiento de peso →
+                </button>
+                <button className="text-sm text-pine-700 hover:underline block w-full" onClick={() => setPantalla('recordatorios')}>
+                  Salud y recordatorios →
+                </button>
+              </>
             )}
             <button className="text-sm text-ink/50 hover:underline block w-full" onClick={() => setPantalla('inicio')}>
               ← Volver a mis mascotas
@@ -225,6 +231,10 @@ function App() {
           onRecalcular={recalcularConNuevoPeso}
           onVolver={() => setPantalla('resultado')}
         />
+      )}
+
+      {pantalla === 'recordatorios' && petId !== null && (
+        <Recordatorios petId={petId} onVolver={() => setPantalla('resultado')} />
       )}
     </div>
   );

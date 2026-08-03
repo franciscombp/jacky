@@ -57,11 +57,25 @@ export interface FeedingPlan {
   generadoEn: string;
 }
 
+export type TipoRecordatorio = 'vacuna' | 'desparasitacion' | 'pulgas' | 'medicacion' | 'vet' | 'recompra';
+
+export interface Reminder {
+  id?: number;
+  petId: number;
+  tipo: TipoRecordatorio;
+  titulo: string;
+  fecha: string;
+  /** Meses entre repeticiones; sin valor = recordatorio único. */
+  recurrenciaMeses?: number;
+  notas?: string;
+}
+
 class JackyDB extends Dexie {
   pets!: Table<Pet, number>;
   healthProfiles!: Table<HealthProfile, number>;
   weightLogs!: Table<WeightLog, number>;
   feedingPlans!: Table<FeedingPlan, number>;
+  reminders!: Table<Reminder, number>;
 
   constructor() {
     super('jacky-db');
@@ -70,6 +84,13 @@ class JackyDB extends Dexie {
       healthProfiles: '++id, petId',
       weightLogs: '++id, petId, fecha',
       feedingPlans: '++id, petId, generadoEn',
+    });
+    this.version(2).stores({
+      pets: '++id, nombre',
+      healthProfiles: '++id, petId',
+      weightLogs: '++id, petId, fecha',
+      feedingPlans: '++id, petId, generadoEn',
+      reminders: '++id, petId, fecha',
     });
   }
 }
@@ -100,10 +121,34 @@ export async function obtenerUltimoPlan(petId: number) {
 }
 
 export async function eliminarMascota(petId: number) {
-  await db.transaction('rw', db.pets, db.healthProfiles, db.weightLogs, db.feedingPlans, async () => {
-    await db.pets.delete(petId);
-    await db.healthProfiles.where('petId').equals(petId).delete();
-    await db.weightLogs.where('petId').equals(petId).delete();
-    await db.feedingPlans.where('petId').equals(petId).delete();
-  });
+  await db.transaction(
+    'rw',
+    db.pets,
+    db.healthProfiles,
+    db.weightLogs,
+    db.feedingPlans,
+    db.reminders,
+    async () => {
+      await db.pets.delete(petId);
+      await db.healthProfiles.where('petId').equals(petId).delete();
+      await db.weightLogs.where('petId').equals(petId).delete();
+      await db.feedingPlans.where('petId').equals(petId).delete();
+      await db.reminders.where('petId').equals(petId).delete();
+    }
+  );
+}
+
+export async function listarRecordatorios(petId: number) {
+  return db.reminders.where('petId').equals(petId).sortBy('fecha');
+}
+
+export async function completarRecordatorio(recordatorio: Reminder) {
+  if (!recordatorio.id) return;
+  if (recordatorio.recurrenciaMeses) {
+    const siguiente = new Date(recordatorio.fecha);
+    siguiente.setMonth(siguiente.getMonth() + recordatorio.recurrenciaMeses);
+    await db.reminders.update(recordatorio.id, { fecha: siguiente.toISOString().slice(0, 10) });
+  } else {
+    await db.reminders.delete(recordatorio.id);
+  }
 }
