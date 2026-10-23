@@ -34,6 +34,20 @@
   --font-body: "Inter", "system-ui", sans-serif;
 }
 
+/*
+ * Sin zoom por doble toque: al tocar rápido el mismo botón el celular
+ * ampliaba la página y costaba volver. "manipulation" quita solo el
+ * doble toque y deja el pellizco para ampliar (accesibilidad).
+ * :where(*) pesa cero, así que cualquier regla con touch-action: none
+ * (el input range de abajo) gana sin tocarla. Va en @layer base para
+ * que las utilidades touch-* de Tailwind también ganen si se usan.
+ */
+@layer base {
+  :where(*) {
+    touch-action: manipulation;
+  }
+}
+
 html, body, #root {
   height: 100%;
 }
